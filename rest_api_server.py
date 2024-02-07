@@ -31,6 +31,18 @@ def upper_case_service(word):
     response.content_type = 'text/plain' 
     return word.upper()
 
+@route('/prime/<number>')
+def is_prime(number):
+    
+    number = int(number)   
+    for i in range(2,number):
+         if number % i == 0:
+             response.content_type = 'text/plain'
+             return f'{number} is NOT prime'
+    response.content_type = 'text/plain'
+    return f'{number} is Prime!!!'
+
+
 @route('/area/circle')
 def circle_area_service():
     #last_visit = request.get_cookie('last-visit', 'unknown')
