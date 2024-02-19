@@ -1,15 +1,19 @@
-from bottle import * 
+from bottle import Bottle, request, response, run, template, static_file
 from pprint import pprint 
 import time 
 import algebra 
 import os 
+import sqlite3 
+import random
 
 # file server 
 
 
 secret = 'CS218 is a Masters class'
 
-@route('/')
+app = Bottle()
+ 
+@app.route('/')
 def welcome():
     pprint(dict(request.headers))
     response.set_header('Vary', 'Accept')
@@ -20,18 +24,35 @@ def welcome():
     response.content_type = 'text/plain' 
     return 'hello'
 
-@route('/now')
+@app.route('/now', method='GET')
 def time_server():
     response.content_type = 'text/plain' 
     response.set_header('Cache-Control', 'max-age=3')
     return time.ctime()
 
-@route('/upper/<word>')
+@app.route('/joke', method='GET')
+def joke_server():
+    response.content_type = 'text/plain' 
+
+    # generate a random number between 1 and 163
+    # NOTE: DONT HARDCODE numbers in code!!!
+
+    r = random.randint(1, 163)
+
+    connection = sqlite3.connect("jokes.db")
+    cursor = connection.cursor() 
+    cursor.execute("SELECT * from Jokes WHERE id = ?", (r,))
+    (i, joke) = cursor.fetchone()
+    connection.close()
+    return dict(i=i, joke=joke, service=request.path) 
+    
+    
+@app.route('/upper/<word>', method='GET')
 def upper_case_service(word):
     response.content_type = 'text/plain' 
     return word.upper()
 
-@route('/prime/<number>')
+@app.route('/prime/<number>', method='GET')
 def is_prime(number):
     
     number = int(number)   
@@ -43,7 +64,7 @@ def is_prime(number):
     return f'{number} is Prime!!!'
 
 
-@route('/area/circle')
+@app.route('/area/circle', method='GET')
 def circle_area_service():
     #last_visit = request.get_cookie('last-visit', 'unknown')
     last_visit = request.get_cookie('last-visit', 'unknown', secret=secret)  
@@ -75,7 +96,7 @@ file_template = '''\
   % end
 </ol>
 '''
-@route('/files')
+@app.route('/files', method='GET')
 def show_files():
     response.set_header('Vary', 'Accept')
     try:
@@ -90,7 +111,7 @@ def show_files():
         return dict(files=files)
     return template(file_template, files=files)
 
-@route('/files/<filename>')
+@app.route('/files/<filename>', method='GET')
 def serve_one_file(filename):
 
     try:
@@ -101,7 +122,7 @@ def serve_one_file(filename):
     return static_file(filename, './farm_animals')
 
 if __name__ == '__main__': 
-    run(host='0.0.0.0', port='8080')
+    run(app, host='0.0.0.0', port='8088')
 
 #if __name__ == '__main__': 
 #    run(host='localhost', port='8080')
