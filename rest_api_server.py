@@ -9,7 +9,7 @@ import random
 # file server 
 
 
-secret = 'CS218 is a Masters class'
+secret = 'CS218 is a Masters class - isnt'it'
 
 app = Bottle()
  
