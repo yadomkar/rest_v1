@@ -24,6 +24,11 @@ def welcome():
     response.content_type = 'text/plain' 
     return 'hello'
 
+@app.route('/animals', method='GET')
+def animals():
+    response.content_type = 'image/png'
+    return static_file('chicken.jpeg', root='./farm_animals')
+
 @app.route('/now', method='GET')
 def time_server():
     response.content_type = 'text/plain' 
